@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        #board {
+            width:220px;
+            height:auto;
+        }
+
+        .cell {
+            border:solid 1px gray;
+            height:20px;
+            width:20px;
+            float:left;
+            display:inline-block;
+        }
+        
+        .row-label, .col-label {
+            text-align: center;
+        }
+
+        .row-label {
+            display: inline-block;
+            height:20px;
+            width:20px;
+            float: left;
+        }
+
+        .col-label {
+            display: inline-block;
+            height:20px;
+            width:20px;
+            float: right;
+        }
+
+    </style>
+</head>
+<body>
+<div id="board">
+</div>
+<script src="./setting.js"></script>
+<script>
+    (function(setData) {
+        'use strict';
+
+        var MAX_COL_NUM = setData.maxColNum;
+        var MAX_ROW_NUM = setData.maxRowNum;
+        var START_ROW = setData.startRow;
+        var START_COL = setData.startCol;
+        var SPACE_KEY = setData.spaceKeyCode;
+        var LEFT_KEY = setData.leftKeyCode;
+        var RIGHT_KEY = setData.rightKeyCode;
+        var UP_KEY = setData.upKeyCode;
+        var DOWN_KEY = setData.downKeyCode;
+
+        var blockSet = setData.blockSet;
+        var boardMap = [];
+
+        var movingBlock = {
+            'rotationSet':[],
+            'cur':{
+                'idx':0,
+                'block':[],
+                'pivot':[],
+                'color':''
+            },
+            'rotate':function() {
+
+                    // 먼저 validate
+                    var nextIdx = (this.cur.idx + 1) % (this.rotationSet.length);
+                    var nextRotBlock = {
+                        'pivot':[],
+                        'block':[]
+                    };
+
+                    for(var i = 0; i < this.rotationSet[nextIdx].length; i++) {
+                        nextRotBlock.block.push([].concat(this.rotationSet[nextIdx][i]));
+                    }
+
+                    for(i = 0; i < nextRotBlock.block.length; i++) {
+                        nextRotBlock.block[i][0] += this.cur.pivot[0];
+                        nextRotBlock.block[i][1] += this.cur.pivot[1];
+                    }
+
+                    nextRotBlock.pivot[0] = this.cur.pivot[0];
+                    nextRotBlock.pivot[1] = this.cur.pivot[1];
+
+//                  (아직 cur.block은 회전하지 않았음) nextBlockData에 회전한 블록이 들어있음.
+
+                    var overCells = [];
+
+                    for(i = 0; i < nextRotBlock.block.length; i++) {
+                        if(nextRotBlock.block[i][1] >= MAX_COL_NUM || nextRotBlock.block[i][0] >= MAX_ROW_NUM || nextRotBlock.block[i][1] < 0) {
+                            console.log("매트릭스 범위를 벗어났다.");
+                            overCells.push([nextRotBlock.block[i][0], nextRotBlock.block[i][1]]);
+
+                        } else if(boardMap[nextRotBlock.block[i][0]][nextRotBlock.block[i][1]] === 1) {
+                            overCells.push([nextRotBlock.block[i][0], nextRotBlock.block[i][1]]);
+                            console.log("쌓인 블록과 충돌 ::" + nextRotBlock.block[i][0] + ", " + nextRotBlock.block[i][1]);
+                        }
+                    }
+
+
+                    var canRotate = false;
+                    if(overCells.length === 0) {
+                        console.log('충돌없음. 회전.');
+                        this.cur.idx += 1;
+                        this.cur.block = [];
+                        for(i = 0; i < nextRotBlock.block.length; i++) {
+                            this.cur.block.push([].concat(nextRotBlock.block[i]));
+                        }
+
+                    } else if(overCells.length === 1) {
+                        console.log("충돌 길이 : " + overCells.length);
+                        if(canBlockMove(nextRotBlock.block, 'left', 1)) {
+                            console.log('좌로 이동가능');
+                            moveBlockCoord(nextRotBlock, 'left', 1);
+
+                        } else if(canBlockMove(nextRotBlock.block, 'right', 1)) {
+                            console.log('우로 이동가능');
+                            moveBlockCoord(nextRotBlock, 'right', 1);
+
+                        } else if(canBlockMove(nextRotBlock.block, 'up', 1)) {
+                            console.log('위로 이동가능');
+                            moveBlockCoord(nextRotBlock, 'up', 1);
+
+                        } else if(canBlockMove(nextRotBlock.block, 'down', 1)) {
+                            console.log("하로 이동가능");
+                            moveBlockCoord(nextRotBlock, 'down', 1);
+
+                        } else {
+                            console.log("회전된 블락은 이동할 공간 없음.");
+                            return;
+                        }
+
+                        this.cur.idx += 1;
+                        this.cur.block = [];
+
+                        for(i = 0; i < nextRotBlock.block.length; i++) {
+                            this.cur.block.push([].concat(nextRotBlock.block[i]));
+                        }
+
+                        this.cur.pivot[0] = nextRotBlock.pivot[0];
+                        this.cur.pivot[1] = nextRotBlock.pivot[1];
+
+                    } else if(overCells.length >= 2) {
+
+                        var temp = {
+                            'block':[],
+                            'pivot':[]
+                        };
+
+                        for(i = 0; i < nextRotBlock.block.length; i++) {
+                            temp.block.push([].concat(nextRotBlock.block[i]));
+                        }
+
+
+
+                        console.log("충돌 길이 : " + overCells.length);
+                        for(var cnt = 1; cnt <= overCells.length; cnt++) {
+                            if(temp.block.length !==0 ) { temp.block = []; }
+
+                            for(i = 0; i < nextRotBlock.block.length; i++) {
+                                temp.block.push([].concat(nextRotBlock.block[i]));
+                            }
+
+                            temp.pivot[0] = nextRotBlock.pivot[0];
+                            temp.pivot[1] = nextRotBlock.pivot[1];
+
+                            if(canBlockMove(nextRotBlock.block, 'left', cnt)) {
+                                console.log('좌로 이동가능');
+                                moveBlockCoord(nextRotBlock, 'left', cnt);
+                                canRotate = true;
+                                break;
+                            } else if(canBlockMove(nextRotBlock.block, 'right', cnt)) {
+                                console.log('우로 이동가능');
+                                moveBlockCoord(nextRotBlock, 'right', cnt);
+                                canRotate = true;
+                                break;
+                            } else if(canBlockMove(nextRotBlock.block, 'up', cnt)) {
+                                console.log('위로 이동가능');
+                                moveBlockCoord(nextRotBlock, 'up', cnt);
+                                canRotate = true;
+                                break;
+                            } else if(canBlockMove(nextRotBlock.block, 'down', cnt)) {
+                                console.log("하로 이동가능");
+                                moveBlockCoord(nextRotBlock, 'down', cnt);
+                                canRotate = true;
+                                break;
+                            }
+                        }
+
+                        if(i === overCells.length && !canRotate) {
+                            console.log("블락 회전할 자리가 안나온다.");
+                            return;
+                        } else {
+                            this.cur.idx += 1;
+                            this.cur.block = [];
+
+                            for(i = 0; i < nextRotBlock.block.length; i++) {
+                                this.cur.block.push([].concat(nextRotBlock.block[i]));
+                            }
+
+                            this.cur.pivot[0] = nextRotBlock.pivot[0];
+                            this.cur.pivot[1] = nextRotBlock.pivot[1];
+                        }
+                    } else {
+                        console.log("회전 안됨.");
+                    }
+            }
+        };
+
+
+        function getElem(key, type) {
+            if(type == 'id') {
+                return document.getElementById(key);
+            }
+        }
+
+        function getElemByCoord(row, col) {
+            return getElem('cell-' + row + '-' + col, 'id');
+        }
+
+        function initBoard(){
+            var board = getElem('board', 'id');
+            var cell;
+
+
+            for(var col = MAX_COL_NUM-1; col >= 0; col--) {
+                var t = document.createElement('div');
+                t.innerText = col+'';
+                t.className = 'col-label';
+
+                board.appendChild(t);
+            }
+
+            board.appendChild(document.createElement('br'));
+
+            for(var row = 0; row < MAX_ROW_NUM; row++) {
+                var t = document.createElement('div');
+                t.className = 'row-label';
+                t.innerText = row;
+                board.appendChild(t);
+                for(var col = 0; col < MAX_COL_NUM; col++) {
+                    cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = 'cell-' + row + '-' + col;
+                    board.appendChild(cell)
+                }
+            }
+
+            for(var row = 0; row < MAX_ROW_NUM; row++) {
+                boardMap[row] = [];
+                for(var col = 0; col < MAX_COL_NUM; col++) {
+                    boardMap[row][col] = 0;
+                }
+            }
+
+            for(var row = 6; row < 10; row++) {
+                for(var col = 4; col < 6; col++) {
+                    getElemByCoord(row, col).style.cssText = 'background-color:'+'black';
+                    boardMap[row][col] = 1;
+                }
+            }
+
+            for(var row = 8; row < 10; row++) {
+                for(var col = 2; col < 4; col++) {
+                    getElemByCoord(row, col).style.cssText = 'background-color:'+'black';
+                    boardMap[row][col] = 1;
+                }
+            }
+
+//            for(var row = 8; row < 10; row++) {
+//                for(var col = 6; col < 7; col++) {
+//                    getElemByCoord(row, col).style.cssText = 'background-color:'+'black';
+//                    boardMap[row][col] = 1;
+//                }
+//            }
+
+            generateBlock();
+        }
+
+        function generateBlock() {
+            // 랜덤 인덱스 생성.
+            var blockSetIdx = Math.floor(Math.random()*blockSet.length);
+//            var blockSetIdx = 0 ;
+            var color = setData.colorSet[blockSetIdx];
+
+            if(movingBlock.cur.block.length !== 0) {
+                movingBlock.cur.block = [];
+                movingBlock.cur.idx = 0;
+                movingBlock.cur.pivot = [];
+                movingBlock.cur.color = '';
+                movingBlock.rotationSet = [];
+            }
+
+            // 변수 block에 저장할 블락셋 중에 하나를 선택한다. 지금은 하나의 블락으로만 테스트.
+            // movingBlock.cur.block 렌더링될 블락이 담겨있다.
+            for(var i = 0; i < blockSet[blockSetIdx][movingBlock.cur.idx].length; i++) {
+                movingBlock.cur.block.push([].concat(blockSet[blockSetIdx][movingBlock.cur.idx][i]));
+            }
+
+            // movingBlock.rotation에는 movingBlock.cur.block이 회전할 수 있는 블락의 모든 블락이 있다
+            for(var i = 0; i < blockSet[blockSetIdx].length; i++) {
+//          하나의 블락을 순회하며 셀의 위치를 복사한다.
+                var temp = [];
+                for(var j = 0; j < blockSet[blockSetIdx][i].length; j++) {
+                    temp.push([].concat(blockSet[blockSetIdx][i][j]));
+                }
+                movingBlock.rotationSet.push(temp);
+            }
+
+            // 시작 위치에 블락을 그리기 위해서 블락의 위치를 조정해준다.
+            for(var i = 0; i < movingBlock.cur.block.length; i++) {
+                movingBlock.cur.block[i][0] += START_ROW;
+                movingBlock.cur.block[i][1] += START_COL;
+            }
+
+            movingBlock.cur.pivot[0] = START_ROW;
+            movingBlock.cur.pivot[1] = START_COL;
+            movingBlock.cur.color = color;
+
+            renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+        }
+
+        function moveBlockCoord(bl, type, cnt) {
+            // rotPivot이 matrix의 크기를 넘어갈 경우 대응?
+            if(type === 'down') {
+                bl.pivot[0] += cnt;
+            } else if(type === 'left') {
+                bl.pivot[1] -= cnt;
+            } else if(type === 'right') {
+                bl.pivot[1] += cnt;
+            } else if(type === 'up') {
+                bl.pivot[0] -= cnt;
+            }
+
+            for(var i = 0; i < bl.block.length; i++) {
+                bl.block[i] = moveCellCoord(bl.block[i][0], bl.block[i][1], type, cnt);
+            }
+
+            return bl.block;
+        }
+
+        function moveCellCoord(row, col, type, cnt) {
+            if(type === 'down') {
+                row += cnt;
+            } else if(type === 'left') {
+                col -= cnt;
+            } else if( type === 'right') {
+                col += cnt;
+            } else if( type === 'up') {
+                row -= cnt;
+            }
+            return [row, col];
+        }
+
+        function removeBlock(bl, dir) {
+            var cell;
+            for(var i = 0; i < bl.length; i++) {
+                if(dir == 'down') {
+                    cell = getElemByCoord(bl[i][0]-1, bl[i][1]);
+                }
+                else if(dir == 'left') {
+                    cell = getElemByCoord(bl[i][0], bl[i][1]+1);
+                }
+                else if(dir == 'right') {
+                    cell = getElemByCoord(bl[i][0], bl[i][1]-1);
+                }
+                else if(dir == 'rotate' || dir == 'hardDown') {
+                    cell = getElemByCoord(bl[i][0], bl[i][1]);
+                }
+
+                cell.style.cssText = 'background-color:'+'none';
+            }
+        }
+
+        // 블락을 그린다.
+        function renderBlock(bl, color) {
+            var cell;
+            for(var i = 0; i < bl.length; i++) {
+                cell = getElemByCoord(bl[i][0], bl[i][1]);
+                cell.style.cssText = 'background-color:'+color;
+            }
+        }
+
+        function canBlockMove(bl, type, cnt) {
+            var row, col;
+            for(var i = 0; i < bl.length; i++) {
+                if(type === 'down') {
+                    row = bl[i][0] + cnt;
+                    col = bl[i][1]
+                }else if(type === 'left') {
+                    row = bl[i][0];
+                    col = bl[i][1] - cnt
+                }else if(type === 'right') {
+                    row = bl[i][0];
+                    col = bl[i][1] + cnt;
+                }else if(type === 'up') {
+                    row = bl[i][0] - cnt;
+                    col = bl[i][1];
+                }
+
+                if(row < 0 || row >= MAX_ROW_NUM || col < 0 || col >= MAX_COL_NUM || boardMap[row][col] === 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        var tic = setInterval(function() {
+//            if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
+//                moveBlockCoord(movingBlock.cur, 'down', 1);
+//                removeBlock(movingBlock.cur.block, 'down');
+//                renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+//            } else {
+//                putBlock();
+//                generateBlock();
+//            }
+        }, 1000);
+
+        initBoard();
+
+        function putBlock() {
+
+            for(var i = 0; i < movingBlock.cur.block.length; i++) {
+                boardMap[movingBlock.cur.block[i][0]][movingBlock.cur.block[i][1]] = 1;
+            }
+
+
+//            debugger;
+        }
+
+        document.body.onkeydown = function(e) {
+            switch (e.keyCode) {
+                case LEFT_KEY:
+                    console.log("left key");
+                    if(canBlockMove(movingBlock.cur.block, 'left', 1)) {
+                        moveBlockCoord(movingBlock.cur, 'left', 1);
+                        removeBlock(movingBlock.cur.block, 'left');
+                        renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+                    }
+                    break;
+
+                case RIGHT_KEY:
+                    console.log("right key");
+                    if(canBlockMove(movingBlock.cur.block, 'right', 1)) {
+                        moveBlockCoord(movingBlock.cur, 'right', 1);
+                        removeBlock(movingBlock.cur.block, 'right');
+                        renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+                    }
+                    break;
+
+                case DOWN_KEY:
+                    console.log("down key");
+                    if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
+                        moveBlockCoord(movingBlock.cur, 'down', 1);
+                        removeBlock(movingBlock.cur.block, 'down');
+                        renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+                    }
+                    break;
+
+                case UP_KEY:
+//                    rotate..............
+
+                    removeBlock(movingBlock.cur.block, 'rotate');
+
+                    movingBlock.rotate();
+
+                    renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+                    break;
+
+                case SPACE_KEY:
+                    console.log("space key");
+//                    debugger;
+                    removeBlock(movingBlock.cur.block, 'hardDown');
+
+                    while(canBlockMove(movingBlock.cur.block, 'down', 1)) {
+                        moveBlockCoord(movingBlock.cur, 'down', 1);
+                    }
+
+                    renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+                    putBlock();
+                    generateBlock();
+//                    debugger;
+
+                    break;
+
+                default:
+                    break;
+
+            }
+        };
+
+    }(globalSetData));
+</script>
+</body>
+</html>
