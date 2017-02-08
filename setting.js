@@ -58,7 +58,7 @@ var globalSetData = {
         // block 6's color
         '#00bfff',
         // block 7's color
-        '#ffff00'
+        '#ffea00'
     ],
     maxColNum: 10,
     maxRowNum: 20,
