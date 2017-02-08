@@ -8,11 +8,33 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
             box-sizing: border-box;
+            font-family: "Nanum Gothic";
         }
 
         #board {
-            width:220px;
+            width:200px;
             height:auto;
+        }
+
+        #board .row:first-of-type{
+            display: none;
+        }
+
+        #next {
+            height: auto;
+            width: 120px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        #next .row {
+            width:80px;
+            margin-right:auto;
+            margin-left:auto;
+        }
+
+        #next .cell {
+            border: solid 1px #cccccc;
         }
 
         .cell {
@@ -42,9 +64,14 @@
         }
 
     </style>
+    <link rel="stylesheet" href="./bower_components/NanumGothic/NanumGothic.css">
 </head>
 <body>
 <div id="board">
+</div>
+
+<div id="next">
+    <h3>Next</h3>
 </div>
 <script src="./setting.js"></script>
 <script>
@@ -53,6 +80,8 @@
 
         var MAX_COL_NUM = setData.maxColNum;
         var MAX_ROW_NUM = setData.maxRowNum;
+        var NEXT_MAX_COL_NUM = setData.nextMaxColNum;
+        var NEXT_MAX_ROW_NUM = setData.nextMaxRowNum;
         var START_ROW = setData.startRow;
         var START_COL = setData.startCol;
         var SPACE_KEY = setData.spaceKeyCode;
@@ -72,7 +101,7 @@
                 'pivot':[],
                 'color':''
             },
-            'next':[],
+            'next':undefined,
             'rotate':function() {
 
                     // 먼저 validate
@@ -229,28 +258,51 @@
             var board = getElem('board', 'id');
             var cell;
             var row, col;
-            var t;
 
-            for(col = MAX_COL_NUM-1; col >= 0; col--) {
-                t = document.createElement('div');
-                t.innerText = col+'';
-                t.className = 'col-label';
+            var row_elem;
 
-                board.appendChild(t);
+            if(setData.debug) {
+                var t;
+                for(col = MAX_COL_NUM-1; col >= 0; col--) {
+                    t = document.createElement('div');
+                    t.innerText = col+'';
+                    t.className = 'col-label';
+                    board.appendChild(t);
+                }
+            }
+
+            var next = getElem('next', 'id');
+
+            for(row = 0; row < NEXT_MAX_ROW_NUM; row++) {
+                row_elem = document.createElement('div');
+                row_elem.className = 'row';
+                next.appendChild(row_elem);
+                for(col = 0; col < NEXT_MAX_COL_NUM; col++) {
+                    cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = 'next-'+row+'-'+col;
+                    row_elem.appendChild(cell);
+                }
             }
 
             board.appendChild(document.createElement('br'));
 
             for(row = 0; row < MAX_ROW_NUM; row++) {
-                t = document.createElement('div');
-                t.className = 'row-label';
-                t.innerText = row;
-                board.appendChild(t);
+                if(setData.debug) {
+                    t = document.createElement('div');
+                    t.className = 'row-label';
+                    t.innerText = row;
+
+                    board.appendChild(t);
+                }
+                row_elem = document.createElement('div');
+                row_elem.className = 'row';
+                board.appendChild(row_elem);
                 for(col = 0; col < MAX_COL_NUM; col++) {
                     cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.id = 'cell-' + row + '-' + col;
-                    board.appendChild(cell)
+                    row_elem.appendChild(cell);
                 }
             }
 
@@ -266,8 +318,17 @@
 
         function generateBlock() {
             // 랜덤 인덱스 생성.
-            var blockSetIdx = Math.floor(Math.random()*blockSet.length);
-//            var blockSetIdx = 0 ;
+            if(movingBlock.next === undefined) {
+                var blockSetIdx = Math.floor(Math.random()*blockSet.length);
+            } else {
+                removeNextBlock(setData.blockSet[movingBlock.next][0]);
+                var blockSetIdx = movingBlock.next;
+            }
+            movingBlock.next = Math.floor(Math.random()*blockSet.length);
+
+            console.log('cur  block : ', blockSetIdx);
+            console.log('next block : ', movingBlock.next);
+
             var color = setData.colorSet[blockSetIdx];
 
             if(movingBlock.cur.block.length !== 0) {
@@ -305,6 +366,23 @@
             movingBlock.cur.color = color;
 
             renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+            renderNextBlock(setData.blockSet[movingBlock.next][0], setData.colorSet[movingBlock.next]);
+        }
+
+        function renderNextBlock(bl, color){
+            var cell;
+            for(var i = 0; i < bl.length; i++) {
+                cell = getElem('next-'+bl[i][0]+'-'+bl[i][1], 'id');
+                cell.style.cssText = 'background-color:'+color;
+            }
+        }
+
+        function removeNextBlock(bl) {
+            var cell;
+            for(var i = 0; i < bl.length; i++) {
+                cell = getElem('next-'+bl[i][0]+'-'+bl[i][1], 'id');
+                cell.style.cssText = 'background-color:'+'none;';
+            }
         }
 
         function moveBlockCoord(bl, type, cnt) {
@@ -410,19 +488,6 @@
             return true;
         }
 
-        var tic = setInterval(function() {
-            if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
-                moveBlockCoord(movingBlock.cur, 'down', 1);
-                removeBlock(movingBlock.cur.block, 'down');
-                renderBlock(movingBlock.cur.block, movingBlock.cur.color);
-            } else {
-                putBlock();
-                generateBlock();
-            }
-        }, 1000);
-
-        initBoard();
-
         function putBlock() {
             for(var i = 0; i < movingBlock.cur.block.length; i++) {
                 boardMap[movingBlock.cur.block[i][0]][movingBlock.cur.block[i][1]] = 1;
@@ -509,7 +574,7 @@
         document.body.onkeydown = function(e) {
             switch (e.keyCode) {
                 case LEFT_KEY:
-                    console.log("left key");
+//                    console.log("left key");
                     if(canBlockMove(movingBlock.cur.block, 'left', 1)) {
                         moveBlockCoord(movingBlock.cur, 'left', 1);
                         removeBlock(movingBlock.cur.block, 'left');
@@ -518,7 +583,7 @@
                     break;
 
                 case RIGHT_KEY:
-                    console.log("right key");
+//                    console.log("right key");
                     if(canBlockMove(movingBlock.cur.block, 'right', 1)) {
                         moveBlockCoord(movingBlock.cur, 'right', 1);
                         removeBlock(movingBlock.cur.block, 'right');
@@ -527,7 +592,7 @@
                     break;
 
                 case DOWN_KEY:
-                    console.log("down key");
+//                    console.log("down key");
                     if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
                         moveBlockCoord(movingBlock.cur, 'down', 1);
                         removeBlock(movingBlock.cur.block, 'down');
@@ -544,7 +609,7 @@
                     break;
 
                 case SPACE_KEY:
-                    console.log("space key");
+//                    console.log("space key");
                     removeBlock(movingBlock.cur.block, 'hardDown');
 
                     while(canBlockMove(movingBlock.cur.block, 'down', 1)) {
@@ -563,6 +628,20 @@
 
             }
         };
+
+        var tic = setInterval(function() {
+            if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
+                moveBlockCoord(movingBlock.cur, 'down', 1);
+                removeBlock(movingBlock.cur.block, 'down');
+                renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+            } else {
+                putBlock();
+                generateBlock();
+            }
+        }, 1000);
+
+
+        initBoard();
 
     }(globalSetData));
 </script>

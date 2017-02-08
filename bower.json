@@ -1,0 +1,17 @@
+{
+  "name": "tetris",
+  "homepage": "https://github.com/pacebook/Tetris",
+  "authors": [
+    "pacebook <haegyun821@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -62,11 +62,14 @@ var globalSetData = {
     ],
     maxColNum: 10,
     maxRowNum: 21,
+    nextMaxColNum: 4,
+    nextMaxRowNum: 3,
     startRow: 0,
     startCol: 4,
     spaceKeyCode:32,
     leftKeyCode:37,
     upKeyCode:38,
     rightKeyCode:39,
-    downKeyCode:40
+    downKeyCode:40,
+    debug:false
 };
