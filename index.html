@@ -16,7 +16,7 @@
         }
 
         .cell {
-            border:solid 1px gray;
+            border:solid 1px #cccccc;
             height:20px;
             width:20px;
             float:left;
@@ -72,6 +72,7 @@
                 'pivot':[],
                 'color':''
             },
+            'next':[],
             'rotate':function() {
 
                     // 먼저 validate
@@ -92,8 +93,6 @@
 
                     nextRotBlock.pivot[0] = this.cur.pivot[0];
                     nextRotBlock.pivot[1] = this.cur.pivot[1];
-
-//                  (아직 cur.block은 회전하지 않았음) nextBlockData에 회전한 블록이 들어있음.
 
                     var overCells = [];
 
@@ -164,7 +163,7 @@
 
                         console.log("충돌 길이 : " + overCells.length);
                         for(var cnt = 1; cnt <= overCells.length; cnt++) {
-                            if(temp.block.length !==0 ) { temp.block = []; }
+                            if(temp.block.length !== 0 ) { temp.block = []; }
 
                             for(i = 0; i < nextRotBlock.block.length; i++) {
                                 temp.block.push([].concat(nextRotBlock.block[i]));
@@ -196,10 +195,7 @@
                             }
                         }
 
-                        if(i === overCells.length && !canRotate) {
-                            console.log("블락 회전할 자리가 안나온다.");
-                            return;
-                        } else {
+                        if(i !== overCells.length && canRotate) {
                             this.cur.idx += 1;
                             this.cur.block = [];
 
@@ -209,6 +205,8 @@
 
                             this.cur.pivot[0] = nextRotBlock.pivot[0];
                             this.cur.pivot[1] = nextRotBlock.pivot[1];
+                        } else {
+                            console.log("회전을 시도 했지만 이동할 각이 안나온다. 회전 안되겠다.");
                         }
                     } else {
                         console.log("회전 안됨.");
@@ -230,10 +228,11 @@
         function initBoard(){
             var board = getElem('board', 'id');
             var cell;
+            var row, col;
+            var t;
 
-
-            for(var col = MAX_COL_NUM-1; col >= 0; col--) {
-                var t = document.createElement('div');
+            for(col = MAX_COL_NUM-1; col >= 0; col--) {
+                t = document.createElement('div');
                 t.innerText = col+'';
                 t.className = 'col-label';
 
@@ -242,12 +241,12 @@
 
             board.appendChild(document.createElement('br'));
 
-            for(var row = 0; row < MAX_ROW_NUM; row++) {
-                var t = document.createElement('div');
+            for(row = 0; row < MAX_ROW_NUM; row++) {
+                t = document.createElement('div');
                 t.className = 'row-label';
                 t.innerText = row;
                 board.appendChild(t);
-                for(var col = 0; col < MAX_COL_NUM; col++) {
+                for(col = 0; col < MAX_COL_NUM; col++) {
                     cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.id = 'cell-' + row + '-' + col;
@@ -255,9 +254,9 @@
                 }
             }
 
-            for(var row = 0; row < MAX_ROW_NUM; row++) {
+            for(row = 0; row < MAX_ROW_NUM; row++) {
                 boardMap[row] = [];
-                for(var col = 0; col < MAX_COL_NUM; col++) {
+                for(col = 0; col < MAX_COL_NUM; col++) {
                     boardMap[row][col] = 0;
                 }
             }
@@ -310,31 +309,21 @@
 
         function moveBlockCoord(bl, type, cnt) {
             // rotPivot이 matrix의 크기를 넘어갈 경우 대응?
-//            if(type !== 'break') {
-                if(type === 'down') {
-                    bl.pivot[0] += cnt;
-                } else if(type === 'left') {
-                    bl.pivot[1] -= cnt;
-                } else if(type === 'right') {
-                    bl.pivot[1] += cnt;
-                } else if(type === 'up') {
-                    bl.pivot[0] -= cnt;
-                }
+            if(type === 'down') {
+                bl.pivot[0] += cnt;
+            } else if(type === 'left') {
+                bl.pivot[1] -= cnt;
+            } else if(type === 'right') {
+                bl.pivot[1] += cnt;
+            } else if(type === 'up') {
+                bl.pivot[0] -= cnt;
+            }
 
-                for(var i = 0; i < bl.block.length; i++) {
-                    bl.block[i] = moveCellCoord(bl.block[i][0], bl.block[i][1], type, cnt);
-                }
+            for(var i = 0; i < bl.block.length; i++) {
+                bl.block[i] = moveCellCoord(bl.block[i][0], bl.block[i][1], type, cnt);
+            }
 
-                return bl.block;
-//            } else {
-//                console.log(bl);
-//                for(var i = 0; i < bl.length; i++) {
-//                    bl[i] = moveCellCoord(bl[i][0], bl[i][1], 'down', 1);
-//                    bl[i].push(bl[i][2]);
-//                }
-//
-//                return bl;
-//            }
+            return bl.block;
         }
 
         function moveLineCoord(bl) {
@@ -378,7 +367,7 @@
                     cell = getElemByCoord(bl[i][0], bl[i][1]);
                 }
 
-                cell.style.cssText = 'background-color:'+'none';
+                cell.style.cssText = 'background-color:'+'none;';
             }
         }
 
@@ -397,7 +386,6 @@
         }
 
         function canBlockMove(bl, type, cnt) {
-//            debugger;
             var row, col;
 
             for(var i = 0; i < bl.length; i++) {
@@ -422,16 +410,16 @@
             return true;
         }
 
-//        var tic = setInterval(function() {
-//            if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
-//                moveBlockCoord(movingBlock.cur, 'down', 1);
-//                removeBlock(movingBlock.cur.block, 'down');
-//                renderBlock(movingBlock.cur.block, movingBlock.cur.color);
-//            } else {
-//                putBlock();
-//                generateBlock();
-//            }
-//        }, 1000);
+        var tic = setInterval(function() {
+            if(canBlockMove(movingBlock.cur.block, 'down', 1)) {
+                moveBlockCoord(movingBlock.cur, 'down', 1);
+                removeBlock(movingBlock.cur.block, 'down');
+                renderBlock(movingBlock.cur.block, movingBlock.cur.color);
+            } else {
+                putBlock();
+                generateBlock();
+            }
+        }, 1000);
 
         initBoard();
 
@@ -487,41 +475,21 @@
                 var dropLineInfo = [];
                 var row;
 
-//                debugger;
-
                 for(row = MAX_ROW_NUM - 1; row >= 0; row--) {
-                    console.log("[" + row + "]");
-
-//                    debugger;
                     if(breakingRows.indexOf(row) === -1) {
-                        console.log('... row is', row);
                         for(col = 0; col < MAX_COL_NUM; col++) {
                             color = getElemByCoord(row, col).style.backgroundColor;
                             dropLineInfo.push([row, col, color]);
-
-//                            debugger;
                         }
-
-//                        debugger;
-
-                        console.log(dropLineInfo);
-                        console.log(dropLineInfo[0][0]);
 
                         removeBlock(dropLineInfo, 'break');
                         for(var i = 0; i < dropLineInfo.length; i++) {
                             boardMap[dropLineInfo[i][0]][dropLineInfo[i][1]] = 0;
                         }
 
-//                        while(canBlockMove(dropLineInfo, 'down', 1)) {
-//                            moveBlockCoord(dropLineInfo, 'break', 1);
-//                            console.log(dropLineInfo);
-//                        }
-
-//                        moveLineCoord(dropLineInfo);
                         while(canBlockMove(dropLineInfo, 'down', 1)) {
                             dropLineInfo = moveLineCoord(dropLineInfo);
                         }
-//                        console.log(boardMap);
 
                         renderBlock(dropLineInfo);
 
@@ -532,28 +500,8 @@
                         }
 
                         dropLineInfo = [];
-
-
-//                        break;
-
-//                        debugger;
                     }
                 }
-
-
-
-//                console.log("space key");
-////                    debugger;
-//                removeBlock(movingBlock.cur.block, 'hardDown');
-//
-//                while(canBlockMove(movingBlock.cur.block, 'down', 1)) {
-//                    moveBlockCoord(movingBlock.cur, 'down', 1);
-//                }
-//
-//                renderBlock(movingBlock.cur.block, movingBlock.cur.color);
-//                putBlock();
-
-
             }
 
         }
@@ -588,8 +536,6 @@
                     break;
 
                 case UP_KEY:
-//                    rotate..............
-
                     removeBlock(movingBlock.cur.block, 'rotate');
 
                     movingBlock.rotate();
@@ -599,7 +545,6 @@
 
                 case SPACE_KEY:
                     console.log("space key");
-//                    debugger;
                     removeBlock(movingBlock.cur.block, 'hardDown');
 
                     while(canBlockMove(movingBlock.cur.block, 'down', 1)) {

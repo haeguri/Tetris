@@ -61,7 +61,7 @@ var globalSetData = {
         '#ffea00'
     ],
     maxColNum: 10,
-    maxRowNum: 20,
+    maxRowNum: 21,
     startRow: 0,
     startCol: 4,
     spaceKeyCode:32,
