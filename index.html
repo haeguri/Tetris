@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
+        .container {
+            position: relative;
+        }
+
         * {
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
@@ -11,14 +15,23 @@
             font-family: "Nanum Gothic";
         }
 
-        #board {
-            width:200px;
-            height:auto;
+        .container {
+            width: 400px;
+            margin-left:auto;
+            margin-right:auto;
         }
 
-        #board .row:first-of-type{
-            display: none;
+        #board {
+            position: relative;
+            /*width:220px;*/
+            width:200px;
+            height:auto;
+            display: inline-block;
         }
+
+        /*#board .row:nth-of-type(1) {*/
+            /*display: none;*/
+        /*}*/
 
         #next {
             height: auto;
@@ -63,15 +76,43 @@
             float: right;
         }
 
+        #game-over.show {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            width:100%;
+            height:100%;
+            background-color: rgba(0,0,0,0.9);
+            color: white;
+        }
+
+        #game-over{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
     </style>
     <link rel="stylesheet" href="./bower_components/NanumGothic/NanumGothic.css">
 </head>
 <body>
-<div id="board">
+<div class="container">
+    <div id="board">
+    </div>
+    <div id="next">
+        <h3>Next</h3>
+    </div>
 </div>
-
-<div id="next">
-    <h3>Next</h3>
+<div id="game-over" class="hide">
+    <h1>Game Over</h1>
+    <button>이름 입력하기</button>
+    <button>다시 시작하기</button>
 </div>
 <script src="./setting.js"></script>
 <script>
@@ -95,24 +136,23 @@
 
         var movingBlock = {
             'rotationSet':[],
+            'next':undefined,
             'cur':{
                 'idx':0,
                 'block':[],
                 'pivot':[],
                 'color':''
             },
-            'next':undefined,
             'rotate':function() {
-
-                    // 먼저 validate
                     var nextIdx = (this.cur.idx + 1) % (this.rotationSet.length);
+
                     var nextRotBlock = {
                         'pivot':[],
                         'block':[]
                     };
 
                     for(var i = 0; i < this.rotationSet[nextIdx].length; i++) {
-                        nextRotBlock.block.push([].concat(this.rotationSet[nextIdx][i]));
+                        nextRotBlock.block.push(this.rotationSet[nextIdx][i].slice());
                     }
 
                     for(i = 0; i < nextRotBlock.block.length; i++) {
@@ -229,11 +269,11 @@
                             this.cur.block = [];
 
                             for(i = 0; i < nextRotBlock.block.length; i++) {
-                                this.cur.block.push([].concat(nextRotBlock.block[i]));
+                                this.cur.block.push(nextRotBlock.block[i].slice());
                             }
 
-                            this.cur.pivot[0] = nextRotBlock.pivot[0];
-                            this.cur.pivot[1] = nextRotBlock.pivot[1];
+                            this.cur.pivot = nextRotBlock.pivot.slice();
+
                         } else {
                             console.log("회전을 시도 했지만 이동할 각이 안나온다. 회전 안되겠다.");
                         }
@@ -258,7 +298,6 @@
             var board = getElem('board', 'id');
             var cell;
             var row, col;
-
             var row_elem;
 
             if(setData.debug) {
@@ -285,8 +324,6 @@
                 }
             }
 
-            board.appendChild(document.createElement('br'));
-
             for(row = 0; row < MAX_ROW_NUM; row++) {
                 if(setData.debug) {
                     t = document.createElement('div');
@@ -295,8 +332,13 @@
 
                     board.appendChild(t);
                 }
+
                 row_elem = document.createElement('div');
-                row_elem.className = 'row';
+                if(!setData.debug && row <= setData.hideRow) {
+                    row_elem.className = 'row hide';
+                } else {
+                    row_elem.className = 'row';
+                }
                 board.appendChild(row_elem);
                 for(col = 0; col < MAX_COL_NUM; col++) {
                     cell = document.createElement('div');
@@ -318,12 +360,16 @@
 
         function generateBlock() {
             // 랜덤 인덱스 생성.
+            var blockSetIdx;
             if(movingBlock.next === undefined) {
-                var blockSetIdx = Math.floor(Math.random()*blockSet.length);
+                console.log('1');
+                blockSetIdx = Math.floor(Math.random()*blockSet.length);
             } else {
+                console.log('2');
                 removeNextBlock(setData.blockSet[movingBlock.next][0]);
-                var blockSetIdx = movingBlock.next;
+                blockSetIdx = movingBlock.next;
             }
+
             movingBlock.next = Math.floor(Math.random()*blockSet.length);
 
             console.log('cur  block : ', blockSetIdx);
@@ -488,21 +534,37 @@
             return true;
         }
 
+        function gameOver() {
+            var gameOverElem = getElem('game-over', 'id');
+            gameOverElem.className = 'show';
+        }
+
         function putBlock() {
-            for(var i = 0; i < movingBlock.cur.block.length; i++) {
+            var row, col, i;
+            for(i = 0; i < movingBlock.cur.block.length; i++) {
                 boardMap[movingBlock.cur.block[i][0]][movingBlock.cur.block[i][1]] = 1;
+            }
+
+            for(row = 3; row >= 0; row--) {
+               for(col = 0; col < MAX_COL_NUM; col++) {
+                    if(boardMap[row][col] == 1){
+                        gameOver();
+                        clearInterval(tic);
+                        return;
+                    }
+               }
             }
 
             // 블락이 어디에 꽂혔는지 (몇행 몇행 에 꽂혔는지 검사한다.)
             var breakingRows = [];
 
-            for(var i = 0; i < movingBlock.cur.block.length; i++) {
+            for(i = 0; i < movingBlock.cur.block.length; i++) {
                 if(breakingRows.indexOf(movingBlock.cur.block[i][0]) === -1) {
                     breakingRows.push(movingBlock.cur.block[i][0]);
                 }
             }
 
-            for(var i = 0; i < movingBlock.cur.block.length; i++) {
+            for(i = 0; i < movingBlock.cur.block.length; i++) {
                 boardMap[movingBlock.cur.block[i][0]][movingBlock.cur.block[i][1]] = 1;
             }
 
@@ -517,9 +579,8 @@
                 // 부숴져야 할 행을 구했다.
                 // 이제 부숴져야 할 행들을 boardMap과 html view에서 삭제 처리한다.
                 var breakingLine;
-                var col;
 
-                for(var i = breakingRows.length-1; i >= 0; i--) {
+                for(i = breakingRows.length-1; i >= 0; i--) {
                     breakingLine = [];
 
                     // boardMap에서 삭제 처리.
@@ -538,7 +599,6 @@
 
                 var color;
                 var dropLineInfo = [];
-                var row;
 
                 for(row = MAX_ROW_NUM - 1; row >= 0; row--) {
                     if(breakingRows.indexOf(row) === -1) {
@@ -568,7 +628,6 @@
                     }
                 }
             }
-
         }
 
         document.body.onkeydown = function(e) {
@@ -602,27 +661,21 @@
 
                 case UP_KEY:
                     removeBlock(movingBlock.cur.block, 'rotate');
-
                     movingBlock.rotate();
-
                     renderBlock(movingBlock.cur.block, movingBlock.cur.color);
                     break;
 
                 case SPACE_KEY:
 //                    console.log("space key");
                     removeBlock(movingBlock.cur.block, 'hardDown');
-
                     while(canBlockMove(movingBlock.cur.block, 'down', 1)) {
                         moveBlockCoord(movingBlock.cur, 'down', 1);
                     }
-
                     renderBlock(movingBlock.cur.block, movingBlock.cur.color);
                     putBlock();
-
                     generateBlock();
 
                     break;
-
                 default:
                     break;
 
@@ -637,6 +690,7 @@
             } else {
                 putBlock();
                 generateBlock();
+
             }
         }, 1000);
 
