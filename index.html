@@ -362,10 +362,8 @@
             // 랜덤 인덱스 생성.
             var blockSetIdx;
             if(movingBlock.next === undefined) {
-                console.log('1');
                 blockSetIdx = Math.floor(Math.random()*blockSet.length);
             } else {
-                console.log('2');
                 removeNextBlock(setData.blockSet[movingBlock.next][0]);
                 blockSetIdx = movingBlock.next;
             }
@@ -537,6 +535,7 @@
         function gameOver() {
             var gameOverElem = getElem('game-over', 'id');
             gameOverElem.className = 'show';
+            clearInterval(tic);
         }
 
         function putBlock() {
@@ -690,7 +689,6 @@
             } else {
                 putBlock();
                 generateBlock();
-
             }
         }, 1000);
 
