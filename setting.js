@@ -73,6 +73,9 @@ var globalSetData = {
     upKeyCode:38,
     rightKeyCode:39,
     downKeyCode:40,
+    speedUpScore:100,
+    initSpeed:700,
+    maxSpeed:300,
     // debug:true
     debug:false
 

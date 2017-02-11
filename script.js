@@ -25,7 +25,6 @@
     });
 
     var game = {
-        'speed':0, // ms
         'currentBlock':{
             'rotationSet':[],
             'rotationIdx':0,
@@ -34,30 +33,65 @@
         },
         'currentBlockIdx':0,
         'nextBlockIdx':0,
+        'calculateScore':function(line) {
+            var self = this;
+
+            self.line += line;
+
+            if(line === 1) self.score += 10;
+            else if(line === 2) self.score += 20;
+            else if(line === 3) self.score += 40;
+            else if(line === 4) self.score += 100;
+
+            var speed = setData.initSpeed - (parseInt(self.score/setData.speedUpScore, 10)*100);
+            //
+            if(speed >= setData.maxSpeed && speed < self.speed) {
+                self.speed = speed;
+                tic.clear();
+                tic.start(self.currentBlock, self.speed);
+            }
+
+            console.log('current speed', self.speed);
+
+            self.elemScore.innerText = self.score;
+            self.elemLine.innerText = self.line
+        },
         'init':function() {
             var self = this;
-            self.modalIntro = getElem('intro', 'id');
-            self.modalGameOver = getElem('game-over', 'id');
+            self.modalIntro = self.modalIntro || getElem('intro', 'id');
+            self.modalGameOver = self.modalGameOver || getElem('game-over', 'id');
+            self.elemScore = self.elemScore || getElem('score', 'id');
+            self.elemLine = self.elemLine || getElem('line', 'id');
+
+            self.elemLine.innerText = 0;
+            self.elemScore.innerText = 0;
+            self.line = 0;
+            self.score = 0;
+            self.speed = setData.initSpeed;
+
             board.init();
             self.nextBlockIdx = Math.floor(Math.random() * setData.blockSet.length);
             self.generateBlock();
         },
         'restart':function() {
             var self = this;
+
+            if(!self.modalGameOver.className.includes('hide'))
+                self.modalGameOver.className += ' hide';
+
             board.clear();
             self.init();
             self.start();
-            if(!self.modalGameOver.className.includes('hide')) {
-                self.modalGameOver.className += ' hide';
-            }
         },
         'start':function() {
             var self = this;
-            self.mappingKey();
+
             if(!self.modalIntro.className.includes('hide')) {
                 self.modalIntro.className += ' hide';
             }
-            tic.start(this.currentBlock, 700);
+
+            self.mappingKey();
+            tic.start(this.currentBlock, self.speed);
         },
         'end':function() {
             var self = this;
@@ -502,7 +536,7 @@
                 self.matrix[block.cellList[i][0]][block.cellList[i][1]] = 1;
             }
 
-            // 블락이 어디에 꽂혔는지 (몇행 몇행 에 꽂혔는지 검사한다.)
+            // 블락이 어디에 꽂혔는지 (우선 몇 행을 지워야 할까?)
             for(i = 0; i < block.cellList.length; i++) {
                 if(breakingRows.indexOf(block.cellList[i][0]) === -1) {
                     breakingRows.push(block.cellList[i][0]);
@@ -514,6 +548,8 @@
                     return row;
                 }
             });
+
+            game.calculateScore(breakingRows.length);
 
             if(breakingRows.length > 0) {
                 breakingRows.sort();
