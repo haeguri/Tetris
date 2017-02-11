@@ -25,10 +25,17 @@
         </div>
     </div>
 </div>
-<div id="game-over" class="hide">
+<div class="modal" id="intro">
+    <h1>
+        Tetris
+    </h1>
+    <button id="btn-start">게임 시작</button>
+    <button id="btn-ranking">랭킹 확인</button>
+</div>
+<div class="modal hide" id="game-over">
     <h1>Game Over</h1>
-    <button>이름 입력하기</button>
-    <button>다시 시작하기</button>
+    <button id="btn-input">이름 입력하기</button>
+    <button id="btn-restart">다시 시작하기</button>
 </div>
 <script src="./setting.js"></script>
 <script src="./script.js"></script>

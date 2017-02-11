@@ -1,8 +1,9 @@
 (function(setData) {
     'use strict';
 
+
     function getElem(key, type) {
-        if(type == 'id') {
+        if(type === 'id') {
             return document.getElementById(key);
         }
     }
@@ -10,6 +11,18 @@
     function getElemByPos(row, col) {
         return getElem('cell-' + row + '-' + col, 'id');
     }
+
+    // self.modalIntro = getElem('intro', 'id');
+    // self.modalGameOver = getElem('game-over', 'id');
+
+    getElem('btn-start','id').addEventListener('click', function() {
+        game.start();
+        // game.modalIntro.className += ' hide';
+    });
+
+    getElem('btn-restart','id').addEventListener('click', function() {
+        game.restart();
+    });
 
     var game = {
         'speed':0, // ms
@@ -23,16 +36,34 @@
         'nextBlockIdx':0,
         'init':function() {
             var self = this;
+            self.modalIntro = getElem('intro', 'id');
+            self.modalGameOver = getElem('game-over', 'id');
             board.init();
             self.nextBlockIdx = Math.floor(Math.random() * setData.blockSet.length);
             self.generateBlock();
         },
+        'restart':function() {
+            var self = this;
+            board.clear();
+            self.init();
+            self.start();
+            if(!self.modalGameOver.className.includes('hide')) {
+                self.modalGameOver.className += ' hide';
+            }
+        },
         'start':function() {
-            this.mappingKey();
+            var self = this;
+            self.mappingKey();
+            if(!self.modalIntro.className.includes('hide')) {
+                self.modalIntro.className += ' hide';
+            }
             tic.start(this.currentBlock, 700);
         },
         'end':function() {
+            var self = this;
             tic.clear();
+            self.destroyKey();
+            self.modalGameOver.className = 'modal';
         },
         'mappingKey':function() {
             var self = this;
@@ -72,7 +103,9 @@
             document.body.onkeydown = function() {};
         },
         'generateBlock':function() {
-            var self = this;
+            var self = this,
+                row, col;
+
             self.currentBlockIdx = self.nextBlockIdx;
             board.removeNextBlock(setData.blockSet[self.nextBlockIdx][0]);
             self.nextBlockIdx = Math.floor(Math.random() * setData.blockSet.length);
@@ -107,6 +140,13 @@
                 self.currentBlock.cellList[i][1] += setData.startCol;
             }
 
+            for(i = 0; i < self.currentBlock.cellList.length; i++) {
+                if(board.matrix[self.currentBlock.cellList[i][0]][self.currentBlock.cellList[i][1]] === 1) {
+                    self.end();
+                    return;
+                }
+            }
+
             self.currentBlock.pivot = [setData.startRow, setData.startCol];
 
             board.generateBlock(self.currentBlock.cellList, setData.colorSet[self.currentBlockIdx],
@@ -129,15 +169,32 @@
             if(this._tic !== undefined) {
                 clearInterval(this._tic);
             }
-        },
-        'restart':function(speed) {
-            this.clear();
-            this.start(speed);
         }
     };
 
     var board = {
         'matrix':[],
+        'clear':function() {
+            var self = this,
+                board = getElem('board', 'id'),
+                next = getElem('next', 'id'),
+                row, col;
+
+            while(board.lastChild) {
+                board.removeChild(board.lastChild);
+            }
+
+            while(next.lastChild) {
+                next.removeChild(next.lastChild);
+            }
+
+            for(row = 0; row < setData.maxRowNum; row++) {
+                self.matrix[row] = [];
+                for(col = 0; col < setData.maxColNum; col++) {
+                    self.matrix[row][col] = 0;
+                }
+            }
+        },
         'init':function() {
             var board = getElem('board', 'id'),
                 self = this,
@@ -149,14 +206,17 @@
 
             if(setData.debug) {
                 board.style.cssText = 'width: 220px';
+
                 row_elem = document.createElement('div');
                 row_elem.className = 'row';
+
                 for(col = setData.maxColNum - 1; col >= 0; col--) {
                     label = document.createElement('div');
                     label.innerText = '' + col;
                     label.className = 'col-label';
                     row_elem.appendChild(label);
                 }
+
                 board.appendChild(row_elem);
             } else {
                 board.style.cssText = 'width: 200px';
@@ -211,6 +271,7 @@
         },
         'generateBlock': function(cellList, color, nextCellList, nextColor) {
             var self = this;
+
             self.renderBlock(cellList, color);
             self.renderNextBlock(nextCellList, nextColor);
 
@@ -437,8 +498,6 @@
                 row, col,
                 i;
 
-            // TODO : game over code..
-
             for(i = 0; i < block.cellList.length; i++) {
                 self.matrix[block.cellList[i][0]][block.cellList[i][1]] = 1;
             }
@@ -514,6 +573,6 @@
     };
 
     game.init();
-    game.start();
+    // game.start();
 
 }(globalSetData));

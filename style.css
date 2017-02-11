@@ -91,7 +91,11 @@ nav {
     float: right;
 }
 
-#game-over.show {
+.modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     top: 0;
     left: 0;
@@ -100,13 +104,6 @@ nav {
     height:100%;
     background-color: rgba(0,0,0,0.9);
     color: white;
-}
-
-#game-over{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
 .hide {
