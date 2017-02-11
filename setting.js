@@ -62,9 +62,9 @@ var globalSetData = {
     ],
     maxColNum: 10,
     maxRowNum: 25,
-    nextMaxColNum: 4,
-    nextMaxRowNum: 3,
-    hideRow:3,
+    // nextMaxColNum: 4,
+    // nextMaxRowNum: 3,
+    hideRowNum:3,
     startRow: 3,
     startCol: 4,
     gameOverRow: 3,
@@ -73,5 +73,7 @@ var globalSetData = {
     upKeyCode:38,
     rightKeyCode:39,
     downKeyCode:40,
+    // debug:true
     debug:false
+
 };

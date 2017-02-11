@@ -1,0 +1,118 @@
+.container {
+    position: relative;
+}
+
+body, h1 {
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+nav {
+    height: 80px;
+    width: 100%;
+    background-color: tomato;
+    color: white;
+    text-align: center;
+    padding-top: 20px;
+}
+
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: "Nanum Gothic";
+}
+
+.container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction:row;
+    width: 400px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#board {
+    position: relative;
+    width:200px;
+    height:auto;
+    flex-basis: 230px;
+}
+
+#side-bar {
+    flex-basis: 30%;
+}
+
+#side-bar div{
+    text-align: center;
+}
+
+#next {
+    height: auto;
+    width: 120px;
+    display: inline-block;
+    text-align: center;
+}
+
+#next .row {
+    width:80px;
+    margin-right:auto;
+    margin-left:auto;
+}
+
+#next .cell {
+    border: solid 1px #cccccc;
+}
+
+.cell {
+    border:solid 1px #cccccc;
+    height:20px;
+    width:20px;            display:inline-block;
+}
+
+.row.hide {
+    background-color: whitesmoke;
+}
+
+.row-label {
+    display: inline-block;
+    height:20px;
+    width:20px;
+    float: left;
+}
+
+.col-label {
+    display: inline-block;
+    height:20px;
+    width:20px;
+    float: right;
+}
+
+#game-over.show {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width:100%;
+    height:100%;
+    background-color: rgba(0,0,0,0.9);
+    color: white;
+}
+
+#game-over{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hide {
+    display: none !important;
+}
+
+.row {
+    height:20px;
+}
