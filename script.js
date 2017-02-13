@@ -44,7 +44,7 @@
             else if(line === 4) self.score += 100;
 
             var speed = setData.initSpeed - (parseInt(self.score/setData.speedUpScore, 10)*100);
-            //
+
             if(speed >= setData.maxSpeed && speed < self.speed) {
                 self.speed = speed;
                 tic.clear();
@@ -70,6 +70,7 @@
             self.speed = setData.initSpeed;
 
             board.init();
+            self.mappingKey();
             self.nextBlockIdx = Math.floor(Math.random() * setData.blockSet.length);
             self.generateBlock();
         },
@@ -90,18 +91,20 @@
                 self.modalIntro.className += ' hide';
             }
 
-            self.mappingKey();
+            self.isPlaying = true;
             tic.start(this.currentBlock, self.speed);
         },
         'end':function() {
             var self = this;
             tic.clear();
-            self.destroyKey();
+            self.isPlaying = false;
             self.modalGameOver.className = 'modal';
         },
         'mappingKey':function() {
             var self = this;
             document.body.onkeydown = function(e) {
+                if(!self.isPlaying) return;
+
                 switch (e.keyCode) {
                     case setData.leftKeyCode:
                         e.preventDefault();
@@ -133,12 +136,8 @@
                 }
             }
         },
-        'destroyKey':function() {
-            document.body.onkeydown = function() {};
-        },
         'generateBlock':function() {
-            var self = this,
-                row, col;
+            var self = this;
 
             self.currentBlockIdx = self.nextBlockIdx;
             board.removeNextBlock(setData.blockSet[self.nextBlockIdx][0]);
