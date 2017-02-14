@@ -2,41 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Tetris</title>
     <link rel="stylesheet" href="./bower_components/NanumGothic/NanumGothic.css">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<nav>
-    <h1>테트리스</h1>
-</nav>
+<nav><h1>Tetris</h1></nav>
 <div class="container">
-    <div id="board">
-    </div>
-    <div id="side-bar">
-        <div id="next">
-            <h3>Next</h3>
-        </div>
+    <div id="left-sidebar">
+        <h3>Next</h3>
+        <div id="next"></div>
         <div id="score-board">
             <h3>Score</h3>
-            <p id="score">몇점</p>
-            <h3>Line Clear</h3>
-            <p id="line">몇줄</p>
+            <p id="score"></p>
+            <h3>Line</h3>
+            <p id="line"></p>
         </div>
     </div>
+    <div id="board-wrapper">
+        <div class="popup" id="intro">
+            <button id="btn-start">게임 시작</button>
+        </div>
+        <div id="board"></div>
+        <div class="popup hide" id="game-over">
+            <!-- TODO : CSS 수정. -->
+            <h1>Game Over</h1>
+            <div class="input-group">
+                <input id="username" type="text" placeholder="이름">
+                <button id="btn-save">등록</button>
+            </div>
+            <button id="btn-restart">한판 더</button>
+        </div>
+    </div>
+    <div id="right-sidebar">
+        <h3>Rank</h3>
+        <ol class="collections">
+            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
+            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
+            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
+            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
+            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
+        </ol>
+    </div>
 </div>
-<div class="modal" id="intro">
-    <h1>
-        Tetris
-    </h1>
-    <button id="btn-start">게임 시작</button>
-    <button id="btn-ranking">랭킹 확인</button>
-</div>
-<div class="modal hide" id="game-over">
-    <h1>Game Over</h1>
-    <button id="btn-input">이름 입력하기</button>
-    <button id="btn-restart">다시 시작하기</button>
-</div>
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 <script src="./setting.js"></script>
 <script src="./script.js"></script>
 </body>

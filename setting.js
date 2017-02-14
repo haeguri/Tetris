@@ -76,7 +76,11 @@ var globalSetData = {
     speedUpScore:100,
     initSpeed:700,
     maxSpeed:300,
-    // debug:true
-    debug:false
-
+    firebaseConfig:{
+        apiKey: "AIzaSyA0HvLU6hI_UNyrZSMN1BkfA_CCLgLMHZ0",
+        authDomain: "ranking-cffb6.firebaseapp.com",
+        databaseURL: "https://ranking-cffb6.firebaseio.com",
+        storageBucket: "ranking-cffb6.appspot.com",
+        messagingSenderId: "403363131622"
+    }
 };

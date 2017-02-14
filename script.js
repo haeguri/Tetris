@@ -12,18 +12,6 @@
         return getElem('cell-' + row + '-' + col, 'id');
     }
 
-    // self.modalIntro = getElem('intro', 'id');
-    // self.modalGameOver = getElem('game-over', 'id');
-
-    getElem('btn-start','id').addEventListener('click', function() {
-        game.start();
-        // game.modalIntro.className += ' hide';
-    });
-
-    getElem('btn-restart','id').addEventListener('click', function() {
-        game.restart();
-    });
-
     var game = {
         'currentBlock':{
             'rotationSet':[],
@@ -58,10 +46,18 @@
         },
         'init':function() {
             var self = this;
-            self.modalIntro = self.modalIntro || getElem('intro', 'id');
-            self.modalGameOver = self.modalGameOver || getElem('game-over', 'id');
+            board.init();
+            ranking.init();
+            self.mappingKey();
+        },
+        'start':function() {
+            var self = this;
+
+            self.popupIntro = self.popupIntro || getElem('intro', 'id');
+            self.popupGameOver = self.popupGameOver || getElem('game-over', 'id');
             self.elemScore = self.elemScore || getElem('score', 'id');
             self.elemLine = self.elemLine || getElem('line', 'id');
+            self.inputUsername = self.inputUsername || getElem('username', 'id');
 
             self.elemLine.innerText = 0;
             self.elemScore.innerText = 0;
@@ -69,36 +65,30 @@
             self.score = 0;
             self.speed = setData.initSpeed;
 
-            board.init();
-            self.mappingKey();
+            if(!self.popupIntro.className.includes('hide')) {
+                self.popupIntro.className += ' hide';
+            }
+
+            self.isPlaying = true;
+            tic.start(this.currentBlock, self.speed);
             self.nextBlockIdx = Math.floor(Math.random() * setData.blockSet.length);
             self.generateBlock();
         },
         'restart':function() {
             var self = this;
 
-            if(!self.modalGameOver.className.includes('hide'))
-                self.modalGameOver.className += ' hide';
+            if(!self.popupGameOver.className.includes('hide'))
+                self.popupGameOver.className += ' hide';
 
             board.clear();
-            self.init();
+            // self.init();
             self.start();
-        },
-        'start':function() {
-            var self = this;
-
-            if(!self.modalIntro.className.includes('hide')) {
-                self.modalIntro.className += ' hide';
-            }
-
-            self.isPlaying = true;
-            tic.start(this.currentBlock, self.speed);
         },
         'end':function() {
             var self = this;
             tic.clear();
             self.isPlaying = false;
-            self.modalGameOver.className = 'modal';
+            self.popupGameOver.className = 'popup';
         },
         'mappingKey':function() {
             var self = this;
@@ -184,6 +174,15 @@
 
             board.generateBlock(self.currentBlock.cellList, setData.colorSet[self.currentBlockIdx],
                                 setData.blockSet[self.nextBlockIdx][0], setData.colorSet[self.nextBlockIdx]);
+        },
+        'addScore':function() {
+            var self = this,
+                username = self.inputUsername.value,
+                score = self.score;
+
+            if(!username) return;
+
+            ranking.addScore(username, score);
         }
     };
 
@@ -209,16 +208,29 @@
         'matrix':[],
         'clear':function() {
             var self = this,
-                board = getElem('board', 'id'),
-                next = getElem('next', 'id'),
-                row, col;
+                childOfBoard = getElem('board', 'id').childNodes,
+                childOfNext = getElem('next', 'id').childNodes,
+                row, col,
+                i, j;
 
-            while(board.lastChild) {
-                board.removeChild(board.lastChild);
+            for(i = 0; i < childOfBoard.length; i++) {
+                // if(childOfBoard[i].childNodes.length === 0) continue;
+
+                for(j = 0; j < childOfBoard[i].childNodes.length; j++) {
+                    if(childOfBoard[i].childNodes[j].className.includes('cell')) {
+                        childOfBoard[i].childNodes[j].style.cssText = 'background-color: none;';
+                    }
+                }
             }
 
-            while(next.lastChild) {
-                next.removeChild(next.lastChild);
+            for(i = 0; i < childOfNext.length; i++) {
+                // if(childOfNext[i].childNodes.length === 0) continue;
+
+                for(j = 0; j < childOfNext[i].childNodes.length; j++) {
+                    if(childOfNext[i].childNodes[j].className.includes('cell')) {
+                        childOfNext[i].childNodes[j].style.cssText = 'background-color: none; border: none;';
+                    }
+                }
             }
 
             for(row = 0; row < setData.maxRowNum; row++) {
@@ -234,26 +246,7 @@
                 cell,
                 row, col,
                 row_elem,
-                label,
                 next;
-
-            if(setData.debug) {
-                board.style.cssText = 'width: 220px';
-
-                row_elem = document.createElement('div');
-                row_elem.className = 'row';
-
-                for(col = setData.maxColNum - 1; col >= 0; col--) {
-                    label = document.createElement('div');
-                    label.innerText = '' + col;
-                    label.className = 'col-label';
-                    row_elem.appendChild(label);
-                }
-
-                board.appendChild(row_elem);
-            } else {
-                board.style.cssText = 'width: 200px';
-            }
 
             // next block 보여주는 매트릭스.
             next = getElem('next', 'id');
@@ -274,14 +267,7 @@
                 row_elem = document.createElement('div');
                 row_elem.className = 'row';
 
-                if(setData.debug) {
-                    label = document.createElement('div');
-                    label.className = 'row-label';
-                    label.innerText = '' + row;
-                    row_elem.appendChild(label);
-                }
-
-                if(!setData.debug && row <= setData.hideRowNum) {
+                if(row <= setData.hideRowNum) {
                     row_elem.className += ' hide';
                 }
 
@@ -336,14 +322,14 @@
             var cell;
             for(var i = 0; i < bl.length; i++) {
                 cell = getElem('next-'+bl[i][0]+'-'+bl[i][1], 'id');
-                cell.style.cssText = 'background-color:'+color;
+                cell.style.cssText = 'background-color:'+color+';border:solid 1px #cccccc;';
             }
         },
         'removeNextBlock':function(cellList) {
             var cell;
             for(var i = 0; i < cellList.length; i++) {
                 cell = getElem('next-'+cellList[i][0]+'-'+cellList[i][1], 'id');
-                cell.style.cssText = 'background-color:'+'none;';
+                cell.style.cssText = 'background-color:'+'none;border:none;';
             }
         },
         'moveBlock':function(block, dir, cnt){
@@ -607,7 +593,91 @@
         }
     };
 
+    var ranking = {
+        'scoreList':[],
+        'init':function() {
+            var self = this;
+            firebase.initializeApp(setData.firebaseConfig);
+
+            self.firebaseAuth = firebase.auth();
+            self.firebaseDB = firebase.database();
+            self.elemCollections = document.getElementsByClassName('collections')[0];
+
+            self.firebaseAuth.signInAnonymously().then(function(user) {
+                if(user) {
+                    // userInfo = user.uid;
+                    self.getScoreList();
+                }
+            });
+        },
+        'getScoreList':function() {
+            var self = this,
+                ref = self.firebaseDB.ref('scores');
+
+            ref.on('child_added', function(data) {
+                self.scoreList.push(data.val());
+                self.updateRanking();
+            });
+        },
+        'updateRanking':function() {
+            var self = this,
+                elemItem, elemUser, elemScore;
+
+            self.scoreList.sort(function(s1, s2){
+                return s2.score - s1.score;
+            });
+
+            while(self.elemCollections.lastChild) {
+                self.elemCollections.removeChild(self.elemCollections.lastChild);
+            }
+
+            for(var i = 0; i < self.scoreList.length; i++) {
+                if(i == 10) {
+                    break;
+                }
+                elemItem = document.createElement('li');
+                elemItem.className = 'item';
+
+                elemUser = document.createElement('div');
+                elemUser.className = 'user';
+                elemUser.innerText = self.scoreList[i].user;
+
+                elemScore = document.createElement('div');
+                elemScore.className = 'score';
+                elemScore.innerText = self.scoreList[i].score;
+
+                elemItem.appendChild(elemUser);
+                elemItem.appendChild(elemScore);
+
+                self.elemCollections.appendChild(elemItem);
+            }
+        },
+        'addScore':function(username, score) {
+            if(!username) return;
+
+            var self = this,
+                ref = self.firebaseDB.ref('scores');
+
+            ref.push({
+                user:username,
+                score:score
+            });
+        }
+    };
+
+    getElem('btn-start','id').addEventListener('click', function() {
+        game.start();
+    });
+
+    getElem('btn-restart','id').addEventListener('click', function() {
+        game.restart();
+    });
+
+    getElem('btn-save', 'id').addEventListener('click', function() {
+        game.addScore()
+    });
+
+
     game.init();
-    // game.start();
 
 }(globalSetData));
