@@ -214,8 +214,6 @@
                 i, j;
 
             for(i = 0; i < childOfBoard.length; i++) {
-                // if(childOfBoard[i].childNodes.length === 0) continue;
-
                 for(j = 0; j < childOfBoard[i].childNodes.length; j++) {
                     if(childOfBoard[i].childNodes[j].className.includes('cell')) {
                         childOfBoard[i].childNodes[j].style.cssText = 'background-color: none;';
@@ -224,8 +222,6 @@
             }
 
             for(i = 0; i < childOfNext.length; i++) {
-                // if(childOfNext[i].childNodes.length === 0) continue;
-
                 for(j = 0; j < childOfNext[i].childNodes.length; j++) {
                     if(childOfNext[i].childNodes[j].className.includes('cell')) {
                         childOfNext[i].childNodes[j].style.cssText = 'background-color: none; border: none;';
