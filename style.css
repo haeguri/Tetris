@@ -1,13 +1,11 @@
-.container {
-    position: relative;
-}
+* {  -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family: "Nanum Gothic" }
 
-body, h1 {
-    margin: 0;
-}
+html, body  { height: 100%; }
 
-html, body  {
-    height: 100%;
+body, h1 { margin: 0 }
+
+h1, h3, p{
+    text-align: center;
 }
 
 nav {
@@ -15,15 +13,11 @@ nav {
     width: 100%;
     background-color: black;
     color: white;
-    text-align: center;
     padding-top: 20px;
 }
 
-* {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    font-family: "Nanum Gothic";
+nav h1 {
+    letter-spacing: 5px;
 }
 
 .container {
@@ -35,42 +29,32 @@ nav {
     margin-right:auto;
 }
 
-#board-wrapper {
+.left.contents {
+    flex-basis: 120px;
+}
+
+.center.contents {
     position: relative;
-    height:auto;
     flex-basis: 230px;
 }
 
-#right-sidebar {
-    flex-basis: 220px;
+.right.contents {
+    margin-left: 20px;
+    flex-basis: 180px;
 }
 
-#right-sidebar h3 {
-    text-align: center;
+.contents .box {
+    height: 100px;
 }
 
-#left-sidebar {
-    flex-basis: 120px;
-    text-align: center;
-}
+/*.right.contents h3 {*/
+    /*text-align: center;*/
+/*}*/
 
 #next {
     height: auto;
     width: 120px;
     display: inline-block;
-    text-align: center;
-}
-
-.cell {
-    border:solid 1px #cccccc;
-    height:23px;
-    width:23px;
-    display:inline-block;
-}
-
-
-.row {
-    height:23px;
 }
 
 #next .row {
@@ -86,10 +70,16 @@ nav {
     width:20px;
 }
 
-.row.hide {
-    background-color: whitesmoke;
+.cell {
+    border:solid 1px #cccccc;
+    height:23px;
+    width:23px;
+    display:inline-block;
 }
 
+.row {
+    height: 23px;
+}
 
 .popup {
     display: flex;
@@ -132,6 +122,7 @@ nav {
 #btn-restart, #btn-start {
     margin-top: 20px;
     width: 198px;
+    font-size: 15px;
 }
 
 button {
@@ -140,39 +131,46 @@ button {
     color: white;
     padding: 10px;
     border-radius: 5px;
+    font-weight:700;
 }
 
-ol.collections {
-    padding-left: 30px;
-    counter-reset: score 0;
+ol.score-list {
+    padding-left: 0;
     list-style: none;
+    counter-reset: score 0;
 }
 
-ol.collections li {
-    height: 30px;
+ol.score-list li {
     margin-top: 7px;
-    counter-increment: score;
-    border: solid 1px black;
+    height: 30px;
     width:100%;
-    border-radius: 8px;
+    border: solid 1px gray;
+    border-radius: 5px;
     overflow: hidden;
+    counter-increment: score;
 }
 
-ol.collections * {
+ol.score-list li span {
     display: inline-block;
+    vertical-align: middle; /**/
+    font-size:14px;
 }
 
-ol.collections li .user {
-    margin-right: 10px;
+ol.score-list li .user {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    width: 80px;
+    width: 83px;
+}
+
+ol.score-list li .score {
+    width: 50px;
 }
 
 li:before {
     display: inline-block;
-    padding: 5px;
+    padding: 3px;
+    height: 100%;
     width: 30px;
     text-align: center;
     background: black;

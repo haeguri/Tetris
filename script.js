@@ -64,6 +64,7 @@
             self.line = 0;
             self.score = 0;
             self.speed = setData.initSpeed;
+            self.isScoreAdded = false;
 
             if(!self.popupIntro.className.includes('hide')) {
                 self.popupIntro.className += ' hide';
@@ -180,7 +181,9 @@
                 username = self.inputUsername.value,
                 score = self.score;
 
-            if(!username) return;
+            if(!username || self.isScoreAdded) return;
+
+            self.isScoreAdded = true;
 
             ranking.addScore(username, score);
         }
@@ -597,7 +600,7 @@
 
             self.firebaseAuth = firebase.auth();
             self.firebaseDB = firebase.database();
-            self.elemCollections = document.getElementsByClassName('collections')[0];
+            self.elemCollections = document.getElementsByClassName('score-list')[0];
 
             self.firebaseAuth.signInAnonymously().then(function(user) {
                 if(user) {
@@ -617,7 +620,7 @@
         },
         'updateRanking':function() {
             var self = this,
-                elemItem, elemUser, elemScore;
+                elemList, elemUser, elemScore;
 
             self.scoreList.sort(function(s1, s2){
                 return s2.score - s1.score;
@@ -631,21 +634,21 @@
                 if(i == 10) {
                     break;
                 }
-                elemItem = document.createElement('li');
-                elemItem.className = 'item';
+                elemList = document.createElement('li');
+                elemList.className = 'item';
 
-                elemUser = document.createElement('div');
+                elemUser = document.createElement('span');
                 elemUser.className = 'user';
                 elemUser.innerText = self.scoreList[i].user;
 
-                elemScore = document.createElement('div');
+                elemScore = document.createElement('span');
                 elemScore.className = 'score';
                 elemScore.innerText = self.scoreList[i].score;
 
-                elemItem.appendChild(elemUser);
-                elemItem.appendChild(elemScore);
+                elemList.appendChild(elemUser);
+                elemList.appendChild(elemScore);
 
-                self.elemCollections.appendChild(elemItem);
+                self.elemCollections.appendChild(elemList);
             }
         },
         'addScore':function(username, score) {
@@ -657,7 +660,7 @@
             ref.push({
                 user:username,
                 score:score
-            });
+            })
         }
     };
 
@@ -672,7 +675,6 @@
     getElem('btn-save', 'id').addEventListener('click', function() {
         game.addScore()
     });
-
 
     game.init();
 

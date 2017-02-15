@@ -9,23 +9,26 @@
 <body>
 <nav><h1>Tetris</h1></nav>
 <div class="container">
-    <div id="left-sidebar">
-        <h3>Next</h3>
-        <div id="next"></div>
-        <div id="score-board">
+    <div class="left contents">
+        <div class="next box">
+            <h3>Next</h3>
+            <div id="next"></div>
+        </div>
+        <div class="score box">
             <h3>Score</h3>
             <p id="score"></p>
+        </div>
+        <div class="line box">
             <h3>Line</h3>
             <p id="line"></p>
         </div>
     </div>
-    <div id="board-wrapper">
+    <div class="center contents">
+        <div id="board"></div>
         <div class="popup" id="intro">
             <button id="btn-start">게임 시작</button>
         </div>
-        <div id="board"></div>
         <div class="popup hide" id="game-over">
-            <!-- TODO : CSS 수정. -->
             <h1>Game Over</h1>
             <div class="input-group">
                 <input id="username" type="text" placeholder="이름">
@@ -34,14 +37,9 @@
             <button id="btn-restart">한판 더</button>
         </div>
     </div>
-    <div id="right-sidebar">
-        <h3>Rank</h3>
-        <ol class="collections">
-            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
-            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
-            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
-            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
-            <!--<li><span class="username">누구</span>  <span class="score">몇점 </span></li>-->
+    <div class="right contents">
+        <h3>Ranking</h3>
+        <ol class="score-list">
         </ol>
     </div>
 </div>
