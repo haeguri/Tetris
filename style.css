@@ -107,7 +107,7 @@ nav h1 {
 }
 
 #game-over .input-group input{
-    width:150px;
+    width:140px;
     background: none;
     border: solid 1px white;
     padding: 10px;
@@ -116,7 +116,7 @@ nav h1 {
 }
 
 #game-over .input-group button {
-    width: 45px;
+    width: 55px;
 }
 
 #btn-restart, #btn-start {

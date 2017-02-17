@@ -12,6 +12,7 @@
         return getElem('cell-' + row + '-' + col, 'id');
     }
 
+
     var game = {
         'currentBlock':{
             'rotationSet':[],
