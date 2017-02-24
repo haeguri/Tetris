@@ -658,10 +658,12 @@
             var self = this,
                 ref = self.firebaseDB.ref('scores');
 
-            ref.push({
-                user:username,
-                score:score
-            })
+            (function(){
+                ref.push({
+                    user:username,
+                    score:score
+                });
+            }());
         }
     };
 
