@@ -24,7 +24,7 @@ nav h1 {
     margin-top: 20px;
     display: flex;
     flex-direction:row;
-    width: 650px;
+    width: 470px;
     margin-left:auto;
     margin-right:auto;
 }
@@ -38,18 +38,9 @@ nav h1 {
     flex-basis: 230px;
 }
 
-.right.contents {
-    margin-left: 20px;
-    flex-basis: 180px;
-}
-
 .contents .box {
     height: 100px;
 }
-
-/*.right.contents h3 {*/
-    /*text-align: center;*/
-/*}*/
 
 #next {
     height: auto;
@@ -100,25 +91,6 @@ nav h1 {
     display: none !important;
 }
 
-#game-over .input-group {
-    margin-top: 20px;
-    width: 200px;
-    display: block;
-}
-
-#game-over .input-group input{
-    width:140px;
-    background: none;
-    border: solid 1px white;
-    padding: 10px;
-    border-radius:5px;
-    color: white;
-}
-
-#game-over .input-group button {
-    width: 55px;
-}
-
 #btn-restart, #btn-start {
     margin-top: 20px;
     width: 198px;
@@ -132,49 +104,4 @@ button {
     padding: 10px;
     border-radius: 5px;
     font-weight:700;
-}
-
-ol.score-list {
-    padding-left: 0;
-    list-style: none;
-    counter-reset: score 0;
-}
-
-ol.score-list li {
-    margin-top: 7px;
-    height: 30px;
-    width:100%;
-    border: solid 1px gray;
-    border-radius: 5px;
-    overflow: hidden;
-    counter-increment: score;
-}
-
-ol.score-list li span {
-    display: inline-block;
-    vertical-align: middle; /**/
-    font-size:14px;
-}
-
-ol.score-list li .user {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    width: 83px;
-}
-
-ol.score-list li .score {
-    width: 50px;
-}
-
-li:before {
-    display: inline-block;
-    padding: 3px;
-    height: 100%;
-    width: 30px;
-    text-align: center;
-    background: black;
-    color: white;
-    margin-right: 5px;
-    content: counter(score);
 }

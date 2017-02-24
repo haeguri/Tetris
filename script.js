@@ -48,7 +48,6 @@
         'init':function() {
             var self = this;
             board.init();
-            ranking.init();
             self.mappingKey();
         },
         'start':function() {
@@ -176,17 +175,6 @@
 
             board.generateBlock(self.currentBlock.cellList, setData.colorSet[self.currentBlockIdx],
                                 setData.blockSet[self.nextBlockIdx][0], setData.colorSet[self.nextBlockIdx]);
-        },
-        'addScore':function() {
-            var self = this,
-                username = self.inputUsername.value,
-                score = self.score;
-
-            if(!username || self.isScoreAdded) return;
-
-            self.isScoreAdded = true;
-
-            ranking.addScore(username, score);
         }
     };
 
@@ -593,88 +581,12 @@
         }
     };
 
-    var ranking = {
-        'scoreList':[],
-        'init':function() {
-            var self = this;
-            firebase.initializeApp(setData.firebaseConfig);
-
-            self.firebaseAuth = firebase.auth();
-            self.firebaseDB = firebase.database();
-            self.elemCollections = document.getElementsByClassName('score-list')[0];
-
-            self.firebaseAuth.signInAnonymously().then(function(user) {
-                if(user) {
-                    // userInfo = user.uid;
-                    self.getScoreList();
-                }
-            });
-        },
-        'getScoreList':function() {
-            var self = this,
-                ref = self.firebaseDB.ref('scores');
-
-            ref.on('child_added', function(data) {
-                self.scoreList.push(data.val());
-                self.updateRanking();
-            });
-        },
-        'updateRanking':function() {
-            var self = this,
-                elemList, elemUser, elemScore;
-
-            self.scoreList.sort(function(s1, s2){
-                return s2.score - s1.score;
-            });
-
-            while(self.elemCollections.lastChild) {
-                self.elemCollections.removeChild(self.elemCollections.lastChild);
-            }
-
-            for(var i = 0; i < self.scoreList.length; i++) {
-                if(i == 10) {
-                    break;
-                }
-                elemList = document.createElement('li');
-                elemList.className = 'item';
-
-                elemUser = document.createElement('span');
-                elemUser.className = 'user';
-                elemUser.innerText = self.scoreList[i].user;
-
-                elemScore = document.createElement('span');
-                elemScore.className = 'score';
-                elemScore.innerText = self.scoreList[i].score;
-
-                elemList.appendChild(elemUser);
-                elemList.appendChild(elemScore);
-
-                self.elemCollections.appendChild(elemList);
-            }
-        },
-        'addScore':function(username, score) {
-            if(!username) return;
-
-            var self = this,
-                ref = self.firebaseDB.ref('scores');
-
-            ref.push({
-                user:username,
-                score:score
-            })
-        }
-    };
-
     getElem('btn-start','id').addEventListener('click', function() {
         game.start();
     });
 
     getElem('btn-restart','id').addEventListener('click', function() {
         game.restart();
-    });
-
-    getElem('btn-save', 'id').addEventListener('click', function() {
-        game.addScore()
     });
 
     game.init();
