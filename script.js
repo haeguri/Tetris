@@ -384,12 +384,15 @@
         'rotateBlock':function(block) {
             var nextRotIdx = (block.rotationIdx + 1) % (block.rotationSet.length),
                 nextRotBlock = {'pivot':[], 'cellList':[]},
+                originCellList = [],
                 overCells = [],
                 self = this,
                 canRotate = false,
                 i, cnt;
 
-            self.removeBlock(block.cellList, 'rotate');
+            for(i = 0; i < block.cellList.length; i++) {
+                originCellList.push(block.cellList[i].slice());
+            }
 
             for(i = 0; i < block.rotationSet[nextRotIdx].length; i++) {
                 nextRotBlock.cellList.push(block.rotationSet[nextRotIdx][i].slice());
@@ -486,6 +489,7 @@
                 console.log('그냥 회전 ');
             }
 
+            self.removeBlock(originCellList, 'rotate');
             self.renderBlock(block.cellList, setData.colorSet[game.currentBlockIdx]);
         },
         'hardDrop':function(block) {
