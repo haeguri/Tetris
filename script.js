@@ -414,8 +414,30 @@
                 }
             }
 
-            if(overCells.length === 0) {
-                console.log('충돌없음. 회전해라.');
+            for(cnt = 1; cnt <= overCells.length; cnt++) {
+                if(self.canBlockMove(nextRotBlock.cellList, 'left', cnt)) {
+                    self.moveBlockPos(nextRotBlock, 'left', cnt);
+                    canRotate = true;
+                    break;
+                }
+                else if(self.canBlockMove(nextRotBlock.cellList, 'right', cnt)) {
+                    self.moveBlockPos(nextRotBlock, 'right', cnt);
+                    canRotate = true;
+                    break;
+                }
+                else if(self.canBlockMove(nextRotBlock.cellList, 'up', cnt)) {
+                    self.moveBlockPos(nextRotBlock, 'up', cnt);
+                    canRotate = true;
+                    break;
+                }
+                else if(self.canBlockMove(nextRotBlock.cellList, 'down', cnt)) {
+                    self.moveBlockPos(nextRotBlock, 'down', cnt);
+                    canRotate = true;
+                    break;
+                }
+            }
+
+            if(canRotate || overCells.length ===0) {
                 block.rotationIdx = nextRotIdx;
                 block.cellList = [];
 
@@ -423,61 +445,10 @@
                     block.cellList.push(nextRotBlock.cellList[i].slice());
                 }
 
-            }
-            else if(overCells.length === 1) {
-                if(self.canBlockMove(nextRotBlock.cellList, 'left', 1)) self.moveBlockPos(nextRotBlock, 'left', 1);
-                else if(self.canBlockMove(nextRotBlock.cellList, 'right', 1)) self.moveBlockPos(nextRotBlock, 'right', 1);
-                else if(self.canBlockMove(nextRotBlock.cellList, 'up', 1)) self.moveBlockPos(nextRotBlock, 'up', 1);
-                else if(self.canBlockMove(nextRotBlock.cellList, 'down', 1)) self.moveBlockPos(nextRotBlock, 'down', 1);
-                else return;
-
-                block.rotationIdx = nextRotIdx;
-                block.cellList = [];
                 block.pivot = nextRotBlock.pivot.slice();
 
-                for(i = 0; i < nextRotBlock.cellList.length; i++) {
-                    block.cellList.push(nextRotBlock.cellList[i].slice());
-                }
-
-            }
-            else if(overCells.length >= 2) {
-                for(cnt = 1; cnt <= overCells.length; cnt++) {
-                    if(self.canBlockMove(nextRotBlock.cellList, 'left', cnt)) {
-                        self.moveBlockPos(nextRotBlock, 'left', cnt);
-                        canRotate = true;
-                        break;
-                    }
-                    else if(self.canBlockMove(nextRotBlock.cellList, 'right', cnt)) {
-                        self.moveBlockPos(nextRotBlock, 'right', cnt);
-                        canRotate = true;
-                        break;
-                    }
-                    else if(self.canBlockMove(nextRotBlock.cellList, 'up', cnt)) {
-                        self.moveBlockPos(nextRotBlock, 'up' ,cnt);
-                        canRotate = true;
-                        break;
-                    }
-                    else if(self.canBlockMove(nextRotBlock.cellList, 'down', cnt)) {
-                        self.moveBlockPos(nextRotBlock, 'down', cnt);
-                        canRotate = true;
-                        break;
-                    }
-                }
-
-                if(canRotate) {
-                    block.rotationIdx = nextRotIdx;
-                    block.cellList = [];
-                    block.pivot = nextRotBlock.pivot.slice();
-
-                    for(i = 0; i < nextRotBlock.cellList.length; i++) {
-                        block.cellList.push(nextRotBlock.cellList[i].slice());
-                    }
-                } else {
-                    console.log('회전을 시도했지만 이동할 할 수 없어 회전 안됨.');
-                }
-            }
-            else {
-                console.log('그냥 회전 ');
+            } else {
+                return;
             }
 
             self.removeBlock(originCellList, 'rotate');
