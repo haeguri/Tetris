@@ -410,7 +410,6 @@
                    nextRotBlock.cellList[i][0] >= setData.maxRowNum ||
                    nextRotBlock.cellList[i][1] < 0 ||
                     self.matrix[nextRotBlock.cellList[i][0]][nextRotBlock.cellList[i][1]] === 1) {
-                    console.log('매트릭스 범위를 벗어나거나, 쌓인 블록과 충돌할 위험.');
                     overCells.push(nextRotBlock.cellList[i].slice());
                 }
             }
@@ -424,7 +423,8 @@
                     block.cellList.push(nextRotBlock.cellList[i].slice());
                 }
 
-            } else if(overCells.length === 1) {
+            }
+            else if(overCells.length === 1) {
                 if(self.canBlockMove(nextRotBlock.cellList, 'left', 1)) self.moveBlockPos(nextRotBlock, 'left', 1);
                 else if(self.canBlockMove(nextRotBlock.cellList, 'right', 1)) self.moveBlockPos(nextRotBlock, 'right', 1);
                 else if(self.canBlockMove(nextRotBlock.cellList, 'up', 1)) self.moveBlockPos(nextRotBlock, 'up', 1);
@@ -439,35 +439,25 @@
                     block.cellList.push(nextRotBlock.cellList[i].slice());
                 }
 
-            } else if(overCells.length >= 2) {
-                var temp = { 'cellList':[], 'pivot':[] };
-
-                for(i = 0; i < nextRotBlock.cellList.length; i++) {
-                    temp.cellList.push(nextRotBlock.cellList[i].slice());
-                }
-
+            }
+            else if(overCells.length >= 2) {
                 for(cnt = 1; cnt <= overCells.length; cnt++) {
-                    if(temp.cellList.length !== 0) temp.cellList = [];
-
-                    for(i = 0; i < nextRotBlock.cellList.length; i++) {
-                        temp.cellList.push(nextRotBlock.cellList[i].slice());
-                    }
-
-                    temp.pivot = nextRotBlock.pivot.slice();
-
                     if(self.canBlockMove(nextRotBlock.cellList, 'left', cnt)) {
                         self.moveBlockPos(nextRotBlock, 'left', cnt);
                         canRotate = true;
                         break;
-                    } else if(self.canBlockMove(nextRotBlock.cellList, 'right', cnt)) {
+                    }
+                    else if(self.canBlockMove(nextRotBlock.cellList, 'right', cnt)) {
                         self.moveBlockPos(nextRotBlock, 'right', cnt);
                         canRotate = true;
                         break;
-                    } else if(self.canBlockMove(nextRotBlock.cellList, 'up', cnt)) {
+                    }
+                    else if(self.canBlockMove(nextRotBlock.cellList, 'up', cnt)) {
                         self.moveBlockPos(nextRotBlock, 'up' ,cnt);
                         canRotate = true;
                         break;
-                    } else if(self.canBlockMove(nextRotBlock.cellList, 'down', cnt)) {
+                    }
+                    else if(self.canBlockMove(nextRotBlock.cellList, 'down', cnt)) {
                         self.moveBlockPos(nextRotBlock, 'down', cnt);
                         canRotate = true;
                         break;
@@ -485,7 +475,8 @@
                 } else {
                     console.log('회전을 시도했지만 이동할 할 수 없어 회전 안됨.');
                 }
-            } else {
+            }
+            else {
                 console.log('그냥 회전 ');
             }
 
